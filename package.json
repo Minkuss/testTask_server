@@ -1,0 +1,19 @@
+{
+  "name": "testtask_server",
+  "version": "1.0.0",
+  "description": "server",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Minkuss/testTask_server.git"
+  },
+  "author": "Minkuss",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Minkuss/testTask_server/issues"
+  },
+  "homepage": "https://github.com/Minkuss/testTask_server#readme"
+}
