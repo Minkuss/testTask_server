@@ -1,67 +1,39 @@
-import cors from 'cors'
-import express from 'express'
-import { createServer } from 'http'
-import mongoose from 'mongoose'
-import { Server } from 'socket.io'
-import { ALLOWED_ORIGIN, MONGODB_URI } from './config.js'
-import onConnection from './socket_io/onConnection.js'
-import { getFilePath } from './utils/file.js'
-import onError from './utils/onError.js'
-import upload from './utils/upload.js'
+var express = require('express');
+var path = require('path'); // модуль для парсинга пути
+var app = express();
+var morgan = require('morgan')
+var bodyParser = require('body-parser')
+var methodOverride = require('method-override')
+var log = require('./utils/log.js').logger;
 
-const app = express()
+app.use(morgan('dev')); // выводим все запросы со статусами в консоль
+app.use(bodyParser.json()); // стандартный модуль, для парсинга JSON в запросах
+app.use(methodOverride()); // поддержка put и delete
 
-app.use(
-  cors({
-    origin: ALLOWED_ORIGIN
-  })
-)
-app.use(express.json())
+app.use(express.static(path.join(__dirname, "public"))); // запуск статического файлового сервера, который смотрит на папку public/ (в нашем случае отдает index.html)
 
-app.use('/upload', upload.single('file'), (req, res) => {
-  if (!req.file) return res.sendStatus(400)
+app.get('/api', function (req, res) {
+    res.send('API is running');
+});
 
-  // формируем относительный путь к файлу
-  const relativeFilePath = req.file.path
-    .replace(/\\/g, '/')
-    .split('server/files')[1]
+app.listen(1337, function(){
+    log.info('Express server listening on port 1337');
+});
 
-  // и возвращаем его
-  res.status(201).json(relativeFilePath)
-})
+app.use(function(req, res, next){
+  res.status(404);
+  log.debug('Not found URL: %s',req.url);
+  res.send({ error: 'Not found' });
+  return;
+});
 
-app.use('/files', (req, res) => {
-  // формируем абсолютный путь к файлу
-  const filePath = getFilePath(req.url)
+app.use(function(err, req, res, next){
+  res.status(err.status || 500);
+  log.error('Internal error(%d): %s',res.statusCode,err.message);
+  res.send({ error: err.message });
+  return;
+});
 
-  // и возвращаем файл по этому пути
-  res.status(200).sendFile(filePath)
-})
-
-app.use(onError)
-
-try {
-  await mongoose.connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
-  console.log('🚀 Connected')
-} catch (e) {
-  onError(e)
-}
-
-const server = createServer(app)
-
-const io = new Server(server, {
-  cors: ALLOWED_ORIGIN,
-  serveClient: false
-})
-
-io.on('connection', (socket) => {
-  onConnection(io, socket)
-})
-
-const PORT = process.env.PORT || 4000
-server.listen(PORT, () => {
-  console.log(`🚀 Server started on port ${PORT}`)
-})
+app.get('/ErrorExample', function(req, res, next){
+  next(new Error('Random error!'));
+});
