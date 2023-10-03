@@ -11,10 +11,6 @@ const projectSchema = new Schema({
     type: String,
     required: true
   },
-  users: {
-    type: Array,
-    required: true
-  },
   tasks: {
     type: Array,
     required: true
