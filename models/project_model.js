@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
-
-import { Schema, model } from "mongoose";
+var mongoose    = require('mongoose');
+var Schema = mongoose.Schema;
+var model = mongoose.model;
 
 const projectSchema = new Schema({
   title: {
@@ -14,7 +14,11 @@ const projectSchema = new Schema({
   tasks: {
     type: Array,
     required: true
+  },
+  id: {
+    type: String,
+    required: true
   }
 });
 
-export default model('Project', projectSchema)
+module.exports.projectSchema = projectSchema;

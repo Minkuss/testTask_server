@@ -27,7 +27,7 @@ const taskSchema = new Schema({
     type: Number,
     required: true
   },
-  time_in_wordk: {
+  time_in_work: {
     type: String,
     required: true
   },
@@ -37,10 +37,18 @@ const taskSchema = new Schema({
   },
   subtasks: {
     type: Array,
-    required: true
+    required: false
   },
   files: {
     type: Array,
+    required: false
+  },
+  comments: {
+    type: Array,
+    required: false
+  },
+  id: {
+    type: String,
     required: true
   }
 }, { timestamps: true });
